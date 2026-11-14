@@ -10,7 +10,7 @@
   const $ = (id) => document.getElementById(id);
   const cv = $('cv');
   const ctx = cv.getContext('2d', { alpha: false });
-  const stage = $('stage');
+  const stage = $('stage') || document.querySelector('.stage');
   const btnPlay = $('btnPlay');
   const btnRestart = $('btnRestart');
   const btnRecord = $('btnRecord');
@@ -55,8 +55,10 @@
     const [w, h] = map[aspectSel.value] || map['9:16'];
     W = w; H = h;
     cv.width = W; cv.height = H;
-    stage.style.setProperty('--w', W);
-    stage.style.setProperty('--h', H);
+    if (stage) {
+      stage.style.setProperty('--w', W);
+      stage.style.setProperty('--h', H);
+    }
     draw(clockTime());
   }
 
@@ -304,8 +306,10 @@
   });
 
   /* --------------------------------- старт -------------------------------- */
-  document.getElementById('title').textContent = META.title || 'Зелёный ролик';
-  document.getElementById('subtitle').textContent = META.audio ? 'звук: ' + META.audio : '';
+  const titleEl = $('title');
+  if (titleEl) titleEl.textContent = META.title || 'Зелёный ролик';
+  const subEl = $('subtitle');
+  if (subEl) subEl.textContent = META.audio ? 'звук: ' + META.audio : '';
   applySize();
   total = SCENE.tail + 4;
   draw(0);

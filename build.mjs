@@ -32,8 +32,24 @@ const fontsCss = [
   fontFace('Montserrat', 'montserrat-latin-900-normal.woff2', 900, LAT)
 ].join('\n');
 
+/* ------------------------------- проверки ------------------------------- */
+function assertSyntax(code, label) {
+  try { new Function(code); }
+  catch (e) { throw new Error('Синтаксическая ошибка в ' + label + ': ' + e.message); }
+}
+
+const templateRaw = read('src/template.html');
+
+/* все id, которые ищет рантайм, должны быть в шаблоне */
+const runtimeSrc = read('src/runtime.js');
+const wantedIds = new Set();
+for (const m of runtimeSrc.matchAll(/\$\('([a-zA-Z0-9_-]+)'\)/g)) wantedIds.add(m[1]);
+for (const m of runtimeSrc.matchAll(/getElementById\('([a-zA-Z0-9_-]+)'\)/g)) wantedIds.add(m[1]);
+const missing = [...wantedIds].filter((id) => !new RegExp('id="' + id + '"').test(templateRaw));
+if (missing.length) throw new Error('В шаблоне нет элементов с id: ' + missing.join(', '));
+
 /* -------------------------------- сборка ------------------------------- */
-const template = read('src/template.html');
+const template = templateRaw;
 const style = read('src/style.css');
 const common = read('src/common.js');
 const runtime = read('src/runtime.js');
@@ -55,8 +71,12 @@ const jobs = [
   }
 ];
 
+assertSyntax(common, 'src/common.js');
+assertSyntax(runtimeSrc, 'src/runtime.js');
+
 for (const job of jobs) {
   const scene = read(job.scene);
+  assertSyntax(scene, job.scene);
   const audioB64 = readB64(job.audio);
   let html = template
     .replace('{{FONTS}}', () => fontsCss)
