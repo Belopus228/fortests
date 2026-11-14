@@ -846,6 +846,73 @@
     });
   }
 
+
+  /* ---------------------- раскладка «сайт в окошке» -------------------------
+     Окно центрировано в (0,0). Возвращает зоны внутри: заголовки, медиа, футер.
+  */
+  function siteLayout(w, h, u) {
+    const barH = Math.max(34 * u, h * 0.085);
+    const pad = Math.max(14 * u, w * 0.018);
+    const content = { x: -w / 2 + pad, y: -h / 2 + barH + pad, w: w - pad * 2, h: h - barH - pad * 2 };
+    const ch = content.h;
+    return {
+      w, h, barH, pad, content,
+      title1Y: content.y + ch * 0.085,
+      title2Y: content.y + ch * 0.185,
+      media: { x: content.x, y: content.y + ch * 0.27, w: content.w, h: ch * 0.455 },
+      footer: { x: content.x, y: content.y + ch * 0.775, w: content.w, h: ch * 0.205 }
+    };
+  }
+
+  /** Нижняя часть сайта: бренд + домен + красная плашка «ссылка в описании» */
+  function siteFooter(ctx, L, u, o) {
+    const f = L.footer;
+    const rowH = f.h * 0.44;
+
+    // разделитель
+    ctx.fillStyle = '#232834';
+    ctx.fillRect(f.x, f.y - 8 * u, f.w, 2 * u);
+
+    // бренд слева
+    label(ctx, o.brand, f.x, f.y + rowH * 0.5, {
+      size: fitSize(ctx, o.brand, f.w * 0.44, rowH * 0.78), fill: C.white, align: 'left',
+      tracking: 1 * u, fontFn: (s) => '900 ' + s + 'px ' + FONT_DISPLAY
+    });
+
+    // домен справа
+    const hi = o.hi || 0;
+    ctx.save();
+    ctx.translate(f.x + f.w, f.y + rowH * 0.5);
+    if (hi > 0) ctx.scale(1 + hi * 0.16, 1 + hi * 0.16);
+    label(ctx, o.domain, 0, 1 * u, {
+      size: fitSize(ctx, o.domain, f.w * 0.38, rowH * 0.62), fill: C.yellow, align: 'right',
+      tracking: 0.5 * u, fontFn: (s) => '900 ' + s + 'px ' + FONT_HEAVY
+    });
+    ctx.restore();
+
+    // плашка «ссылка в описании»
+    const chipW = f.w * 0.94, chipH = f.h * 0.40;
+    const cy2 = f.y + rowH + (f.h - rowH) * 0.52;
+    ctx.save();
+    ctx.translate(f.x + f.w / 2, cy2);
+    const sc = o.chipScale === undefined ? 1 : o.chipScale;
+    ctx.scale(sc, sc);
+    rrect(ctx, -chipW / 2, -chipH / 2, chipW, chipH, chipH / 2);
+    ctx.fillStyle = C.red;
+    ctx.fill();
+    ctx.lineWidth = 3 * u;
+    ctx.strokeStyle = C.ink;
+    ctx.stroke();
+    label(ctx, o.chip || 'ССЫЛКА В ОПИСАНИИ', 0, 1 * u, {
+      size: fitSize(ctx, o.chip || 'ССЫЛКА В ОПИСАНИИ', chipW * 0.86, chipH * 0.62),
+      fill: C.white, align: 'center', tracking: 1 * u
+    });
+    if (o.arrow) {
+      const bob = Math.sin(o.arrowT * 9) * 5 * u;
+      arrowDown(ctx, chipW / 2 + 26 * u, bob, 30 * u, C.yellow, C.ink, 5 * u);
+    }
+    ctx.restore();
+  }
   /* ------------------------------- аудио-огибающая ------------------------- */
   /**
    * Считает огибающую громкости по каналу PCM. Возвращает функцию env(t) -> 0..1.
@@ -890,6 +957,7 @@
     easeOutBack, easeInBack, easeOutElastic, pulse, mulberry32, rr, C, FONT_DISPLAY, FONT_HEAVY,
     rrect, poly, starPath, fillStroke, burst, circle, ring, arc, gear, coin, bill, sparkle,
     arrowDown, arrowRight, bolt, label, labelWidth, fitSize, band, trash, skin, makeEnvelope,
-    coverImage, photoTile, browserWindow, selectionFrame, cursorArrow, urlPill, darkSite, brandPlate
+    coverImage, photoTile, browserWindow, selectionFrame, cursorArrow, urlPill, darkSite, brandPlate,
+    siteLayout, siteFooter
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
