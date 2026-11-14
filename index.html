@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Зелёные ролики · апгрейдер / мусордроп / рубап</title>
+<title>Зелёные ролики · мэл футажэс / бурмолда.ру</title>
 <style>
   :root { --bg:#07080b; --panel:#12141a; --line:#262a34; --txt:#eef1f7; --dim:#98a0b3; --green:#00ff00; --yellow:#ffd400; }
   * { box-sizing: border-box; }
@@ -15,7 +15,7 @@
   .kicker { color: var(--green); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
   h1 { font-size: clamp(26px, 4vw, 42px); margin: 10px 0 8px; line-height: 1.15; }
   h1 span { color: var(--yellow); }
-  p.lead { color: var(--dim); max-width: 720px; line-height: 1.65; margin: 0 0 30px; }
+  p.lead { color: var(--dim); max-width: 760px; line-height: 1.65; margin: 0 0 30px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
   a.card {
     display: block; text-decoration: none; color: inherit; background: var(--panel);
@@ -29,6 +29,7 @@
   }
   .num { font-size: 13px; color: var(--dim); letter-spacing: 2px; }
   .card h2 { margin: 8px 0 6px; font-size: 24px; }
+  .card .say { font-size: 13px; color: #9fb0c8; font-style: italic; margin: 0 0 12px; }
   .card p { margin: 0 0 16px; color: var(--dim); font-size: 14px; line-height: 1.55; }
   .tags { display: flex; gap: 8px; flex-wrap: wrap; }
   .tag { font-size: 12px; color: #cfd6e6; background: #0e1117; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
@@ -37,23 +38,25 @@
   .how h3 { margin: 0 0 12px; font-size: 18px; }
   .how ol { margin: 0; padding-left: 20px; color: var(--dim); line-height: 1.75; font-size: 14px; }
   code { background: #0e1117; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--yellow); font-family: ui-monospace, Consolas, monospace; }
-  .foot { margin-top: 26px; font-size: 12px; color: #5d6678; }
+  .foot { margin-top: 26px; font-size: 12px; color: #5d6678; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="kicker">green screen ads · 1080 × 1920</div>
-  <h1>Апгрейдер · мусордроп · <span>рубап</span></h1>
+  <h1>Мэл футажэс · <span>бурмолда.ру</span></h1>
   <p class="lead">
-    Два ролика на чистом зелёном фоне, полностью нарисованные кодом (canvas) и синхронизированные
-    со звуками Меллстроя. Внутри каждого файла уже лежит звук, шрифты и кнопка записи видео — интернет не нужен.
+    Два ролика на чистом зелёном фоне: открывается окошко браузера, из него вылетает сайт —
+    стена футажей Меллстроя, один кадр выделяется и увеличивается, дальше имя сайта.
+    Всё нарисовано кодом (canvas) и синхронизировано со звуками. Звук, фото и шрифты уже внутри файлов.
   </p>
 
   <div class="grid">
-    <a class="card" href="upgrader-rubap-1.html">
+    <a class="card" href="mel-footage-1.html">
       <div class="num">РОЛИК 01</div>
-      <h2>АПГРЕЙДЕР</h2>
-      <p>Крутится апгрейд-колесо, мусор улетает в бак, из бака вылетает золотой АК, «РУБАП» и дождь денег.</p>
+      <h2>МЭЛ ФУТАЖЭС</h2>
+      <p class="say">«Забери свой лучший кадр… мэл футажэс онлайн!»</p>
+      <p>Открывается окошко браузера, вылетает стена футажей, выбранный кадр выделяется рамкой и увеличивается.</p>
       <div class="tags">
         <span class="tag">звук 4.15 с</span>
         <span class="tag">итого 5.15 с</span>
@@ -62,10 +65,11 @@
       <div class="go">Открыть ролик →</div>
     </a>
 
-    <a class="card" href="upgrader-rubap-2.html">
+    <a class="card" href="burmolda-ru-2.html">
       <div class="num">РОЛИК 02</div>
-      <h2>СЛОТ: МУСОР → РУБАП</h2>
-      <p>Слот-машина крутит мусор, барабаны встают, джекпот: скины, 1 000 000 ₽ и плашка x1000.</p>
+      <h2>БУРМОЛДА.РУ</h2>
+      <p class="say">«Найди свою бурмолду… бурмолда точка ру»</p>
+      <p>Футажи летают вокруг, кадр вылетает в центр и увеличивается, снизу появляется адресная строка «бурмолда.ру».</p>
       <div class="tags">
         <span class="tag">звук 3.79 с</span>
         <span class="tag">итого 4.79 с</span>
@@ -85,7 +89,10 @@
     </ol>
   </div>
 
-  <div class="foot">Шрифты: Russo One, Montserrat (SIL Open Font License). Сборка: <code>node build.mjs</code>.</div>
+  <div class="foot">
+    Шрифты: Russo One, Montserrat (SIL Open Font License). Фото для стены футажей — мемные кадры из открытых источников,
+    лежат в <code>src/photos/</code> и легко меняются. Сборка: <code>node build.mjs</code>.
+  </div>
 </div>
 </body>
 </html>

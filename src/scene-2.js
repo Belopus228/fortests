@@ -1,65 +1,61 @@
 /* =======================================================================
-   Сцена 2 — «СЛОТ: МУСОР → РУБАП»  (звук: [Меллстрой]_рифм......нлайн.mp3, 3.79 c)
-   Тайминги по фразам звука:
-     0.05–1.45  «МУСОР»   — крутится слот с мусором
-     1.45–1.85  барабаны встают, вспышка
-     1.85–3.25  «РУБАП»   — джекпот, счётчик, деньги
-     3.25–4.80  призыв к действию
+   Сцена 2 — «БУРМОЛДА.РУ»   (звук: [Меллстрой]_рифм......нлайн.mp3, 3.79 c)
+
+   Текст звука:
+     «…найди свою бурмолду… бурмолда точка ру»
+   Тайминги по фразам:
+     0.14–1.44  «НАЙДИ СВОЮ БУРМОЛДУ» — вокруг летает стена футажей
+     1.82–3.24  «БУРМОЛДА»            — один кадр вылетает в центр и увеличивается
+     3.24–3.78  «ТОЧКА РУ»            — появляется адресная строка
+     3.70–4.79  призыв к действию
    ======================================================================= */
 (function (g) {
   'use strict';
   const A = g.Ads;
   const {
-    TAU, clamp, lerp, seg, smooth, easeOutCubic, easeInCubic, easeOutBack,
-    easeOutElastic, easeInOutCubic, pulse, mulberry32, rr, C,
-    rrect, poly, circle, ring, coin, bill, sparkle, band, label, labelWidth, fitSize,
-    trash, skin, arrowDown, FONT_DISPLAY
+    TAU, clamp, lerp, seg, smooth, easeOutCubic, easeInCubic, easeInOutCubic, easeOutBack,
+    easeOutElastic, pulse, mulberry32, rr, C,
+    rrect, circle, ring, band, label, labelWidth, fitSize, sparkle, arrowDown,
+    photoTile, selectionFrame, cursorArrow, urlPill
   } = A;
 
   /* ------------------------------ настройки ------------------------------- */
   const CFG = {
-    word1: 'МУСОР',
-    word2: 'РУБАП',
-    sub: 'МУСОР  →  РУБАП',
-    mult: 'x1000',
-    win: '1 000 000 ₽',
-    cta: 'ЗАЛЕТАЙ НА РУБАП',
+    lines: ['НАЙДИ СВОЮ', 'БУРМОЛДУ'],
+    brand: 'БУРМОЛДА',
+    domain: 'бурмолда.ру',
+    cta: 'ЗАЛЕТАЙ НА БУРМОЛДА.РУ',
     ctaSub: 'ССЫЛКА В ОПИСАНИИ',
-    ticker: 'РУБАП  •  МУСОР  В  ДЕЛО  •  x1000  •  ЗАЛЕТАЙ  •  '
+    ticker: 'БУРМОЛДА.РУ  •  НАЙДИ СВОЮ БУРМОЛДУ  •  МЭЛ ФУТАЖЭС  •  '
   };
 
   /* ------------------------------- тайминги ------------------------------- */
-  const T = { intro: 0.02, a: 0.06, lock: 1.46, jackpot: 1.84, cta: 3.26, tail: 1.0 };
+  const T = { l1: 0.16, l2: 0.38, lock: 1.82, domain: 3.26, cta: 3.70, tail: 1.0 };
 
-  const R = mulberry32(777123);
-  const ITEMS = ['banana', 'boot', 'sock', 'bottle', 'can', 'paper', 'bag'];
+  const R = mulberry32(998877);
 
-  const reels = [
-    { stop: T.lock + 0.06, speed: 13.5, offset: 0 },
-    { stop: T.lock + 0.16, speed: 15.0, offset: 3 },
-    { stop: T.lock + 0.26, speed: 12.5, offset: 5 }
-  ];
-
-  const money = Array.from({ length: 22 }, () => ({
-    kind: R() < 0.68 ? 'bill' : 'coin',
-    x: rr(R, -0.02, 1.02),
-    ph: R(),
-    sp: rr(R, 0.42, 0.80),
-    sz: rr(R, 0.9, 1.3),
-    rot: rr(R, -1.2, 1.2),
-    spin: rr(R, -1.6, 1.6),
-    from: rr(R, 0, 0.3)
+  /* летающая стена футажей */
+  const FLOAT = Array.from({ length: 11 }, (_, i) => ({
+    ang: (i / 11) * TAU + rr(R, -0.2, 0.2),
+    rad: rr(R, 0.82, 1.16),
+    spin: rr(R, -0.5, 0.5),
+    rot: rr(R, -0.35, 0.35),
+    cropX: rr(R, -0.8, 0.8),
+    cropY: rr(R, -0.8, 0.8),
+    zoom: rr(R, 1.0, 1.3),
+    code: ['0:11', '0:26', '0:08', '1:12', '0:37', '0:19'][Math.floor(rr(R, 0, 6))],
+    delay: 0.14 + i * 0.045
   }));
 
-  const sparks = Array.from({ length: 26 }, () => ({
-    a: rr(R, 0, TAU), d: rr(R, 0.3, 1.0), s: rr(R, 0.4, 1.05), sp: rr(R, 0.6, 1.6)
+  const sparks = Array.from({ length: 24 }, () => ({
+    a: rr(R, 0, TAU), d: rr(R, 0.25, 1), s: rr(R, 0.4, 1.05), sp: rr(R, 0.6, 1.6)
   }));
 
   /* -------------------------------- хелперы -------------------------------- */
   function slam(t, t0, dur, from) {
-    const x = seg(t, t0, t0 + dur);
-    const k = easeOutBack(x, 1.9);
-    return { sx: lerp(1.12, 1, k), sy: lerp(from === undefined ? 2 : from, 1, k) };
+    const k = easeOutBack(seg(t, t0, t0 + dur), 1.9);
+    const f = from === undefined ? 2 : from;
+    return { sx: lerp(1.12, 1, k), sy: lerp(f, 1, k) };
   }
 
   function wordSlam(ctx, text, x, y, maxW, baseSize, o) {
@@ -75,68 +71,10 @@
     return fs;
   }
 
-  /** позиция ленты барабана (в «иконках»), плавно доводится до целого */
-  function reelPos(t, r) {
-    const p0 = r.offset + r.stop * r.speed;
-    const base = Math.floor(p0);
-    const frac = p0 - base;
-    const k = easeOutCubic(seg(t, r.stop, r.stop + 0.22));
-    return base + frac * (1 - k);
-  }
-
-  const WIN_SET = ['bar', 'knife', 'glove'];
-
-  function drawReel(ctx, x, y, w, h, t, r, k, win) {
-    ctx.save();
-    rrect(ctx, x, y, w, h, 16 * k);
-    ctx.fillStyle = C.ink2;
-    ctx.fill();
-    ctx.clip();
-
-    const cellH = win ? h : h * 0.52;
-    const iconS = Math.min(w * (win ? 0.94 : 0.74), cellH * (win ? 0.80 : 0.86));
-    const pos = reelPos(t, r);
-    const base = Math.floor(pos);
-    const frac = pos - base;
-    const set = win ? WIN_SET : ITEMS;
-
-    const from = win ? 0 : -2, to = win ? 0 : 2;
-    for (let i = from; i <= to; i++) {
-      const raw = base + i;
-      const idx = ((raw % set.length) + set.length) % set.length;
-      const iy = y + h / 2 + (i - frac) * cellH;
-      ctx.save();
-      ctx.translate(x + w / 2, iy);
-      if (win) {
-        circle(ctx, 0, 0, iconS * 0.66, C.cream, C.gold, 5 * k);
-        skin(ctx, set[idx], iconS * 1.05, 0);
-      } else {
-        trash(ctx, set[idx], iconS, 0);
-      }
-      ctx.restore();
-    }
-
-    // блик стекла
-    ctx.beginPath();
-    ctx.moveTo(x, y + h * 0.20);
-    ctx.lineTo(x + w, y + h * 0.08);
-    ctx.lineTo(x + w, y + h * 0.14);
-    ctx.lineTo(x, y + h * 0.26);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.09)';
-    ctx.fill();
-
-    rrect(ctx, x, y, w, h, 16 * k);
-    ctx.lineWidth = 8 * k;
-    ctx.strokeStyle = C.ink;
-    ctx.stroke();
-    ctx.restore();
-  }
-
   /* --------------------------------- сцена --------------------------------- */
   const scene = {
-    id: 'scene2',
-    name: 'Слот / Рубап',
+    id: 'burmolda-ru',
+    name: 'Бурмолда.ру',
     tail: T.tail,
     cfg: CFG,
     draw(ctx, W, H, t, E) {
@@ -146,219 +84,207 @@
       const X = (v) => W * v;
       const Y = (v) => H * v;
       const M = Math.min(W, H);
+      const photos = A.photos || [];
       const punch = 1 + env * 0.04;
 
       ctx.save();
       if (t > 0.1) {
         const sh = env * 8 * u;
-        ctx.translate(Math.sin(t * 59) * sh, Math.cos(t * 53) * sh);
+        ctx.translate(Math.sin(t * 61) * sh, Math.cos(t * 47) * sh);
       }
 
-      const jp = seg(t, T.jackpot, T.jackpot + 0.3); // прогресс джекпота
+      /* --------------------------- 1. ЛЕТАЮЩАЯ СТЕНА --------------------------- */
+      const out = seg(t, T.lock, T.lock + 0.45);
+      const tileW = W * 0.29, tileH = W * 0.29 * 0.94;
 
-      /* ------------------------ фон-лучи на джекпоте ------------------------- */
-      if (t > T.jackpot - 0.05) {
-        const a = seg(t, T.jackpot - 0.05, T.jackpot + 0.25);
-        ctx.save();
-        ctx.translate(cx, Y(0.52));
-        ctx.globalAlpha = 1;
-        ctx.rotate(t * 0.3);
-        for (let i = 0; i < 18; i++) {
-          const ang = (i / 18) * TAU;
-          const w = i % 2 ? 0.030 : 0.018;
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(Math.cos(ang - w) * W * 1.1, Math.sin(ang - w) * W * 1.1);
-          ctx.lineTo(Math.cos(ang + w) * W * 1.1, Math.sin(ang + w) * W * 1.1);
-          ctx.closePath();
-          ctx.fillStyle = i % 2 ? C.crimson : C.gold;
-          ctx.fill();
+      if (t < T.lock + 0.5) {
+        for (let i = 0; i < FLOAT.length; i++) {
+          const f = FLOAT[i];
+          const ap = seg(t, f.delay, f.delay + 0.3);
+          if (ap <= 0) continue;
+          const ang = f.ang + t * 0.55 * (i % 2 ? 1 : -1);
+          const rad = 1 + easeOutCubic(out) * 2.4;
+          const px = cx + Math.cos(ang) * W * 0.46 * f.rad * rad;
+          const py = Y(0.55) + Math.sin(ang) * H * 0.26 * f.rad * rad;
+          const sc = easeOutBack(ap, 1.5) * lerp(1, 0.35, easeInCubic(out));
+          photoTile(ctx, {
+            img: photos[(i * 3 + 2) % Math.max(photos.length, 1)] || null,
+            x: px, y: py, w: tileW, h: tileH,
+            rot: f.rot + t * f.spin * 0.4 + out * 1.6,
+            scale: sc * (0.9 + (i % 3) * 0.06),
+            cropX: f.cropX, cropY: f.cropY, zoom: f.zoom,
+            codeText: f.code, tag: i % 2 === 0
+          });
         }
-        ctx.restore();
       }
 
-      /* -------------------------- звезда за машиной --------------------------- */
-      if (t > T.jackpot - 0.02) {
-        const st = easeOutElastic(seg(t, T.jackpot, T.jackpot + 0.45));
+      /* ------------------------- 2. ГЛАВНЫЙ КАДР В ЦЕНТРЕ ----------------------- */
+      if (t > T.lock - 0.05) {
+        const fl = pulse(t, T.lock - 0.03, 0.14);
+        if (fl > 0.01) {
+          ctx.save();
+          ctx.globalAlpha = clamp(fl * 0.85);
+          ctx.fillStyle = C.white;
+          ctx.fillRect(-W, -H, W * 3, H * 3);
+          ctx.restore();
+        }
+
+        // звезда
+        const st = easeOutElastic(seg(t, T.lock, T.lock + 0.45));
         if (st > 0) {
           ctx.save();
-          ctx.translate(cx, Y(0.545));
-          ctx.rotate(-t * 0.22);
+          ctx.translate(cx, Y(0.558));
+          ctx.rotate(t * 0.2);
           ctx.scale(st, st);
-          A.burst(ctx, 0, 0, 16, W * 0.38, W * 0.26, 0, C.yellow, C.ink, 8 * u);
+          A.burst(ctx, 0, 0, 16, W * 0.42, W * 0.28, 0, C.yellow, C.ink, 8 * u);
           ctx.restore();
         }
+
+        const pop = easeOutElastic(seg(t, T.lock + 0.02, T.lock + 0.55));
+        const mw = W * 0.78, mh = W * 0.68;
+        photoTile(ctx, {
+          img: photos[0] || null,
+          x: cx, y: Y(0.558), w: mw, h: mh,
+          rot: 0, scale: pop * punch,
+          cropX: 0, cropY: 0.18, zoom: 1.08,
+          codeText: '0:09', tagText: 'burmolda.ru', play: true
+        });
+
+        // рамка выделения
+        const fr = easeOutBack(seg(t, T.lock + 0.16, T.lock + 0.5), 1.8);
+        ctx.save();
+        ctx.translate(cx, Y(0.558));
+        ctx.scale(fr, fr);
+        selectionFrame(ctx, 0, 0, mw + 56 * u, mh + 56 * u, 14 * u, C.yellow);
+        selectionFrame(ctx, 0, 0, mw + 40 * u, mh + 40 * u, 6 * u, C.white);
+        ctx.restore();
+
+        // искры
+        const dt = t - T.lock;
+        if (dt < 0.85) {
+          for (const s of sparks) {
+            const d = s.d * 0.5 * M * easeOutCubic(clamp(dt / 0.5));
+            ctx.save();
+            ctx.globalAlpha = 1 - clamp(dt / 0.85);
+            sparkle(ctx, cx + Math.cos(s.a) * d * s.sp, Y(0.558) + Math.sin(s.a) * d * s.sp, 26 * u * s.s, dt * 3 + s.a, s.a > 3 ? C.white : C.yellow);
+            ctx.restore();
+          }
+        }
       }
 
-      /* ------------------------------- слот-машина ---------------------------- */
+      /* -------------------------------- 3. ТЕКСТЫ ------------------------------ */
+      if (t < T.lock + 0.08) {
+        const exit = easeInCubic(seg(t, T.lock - 0.16, T.lock - 0.01));
+        ctx.save();
+        ctx.translate(0, -exit * H * 0.5);
+        wordSlam(ctx, CFG.lines[0], cx, Y(0.105), W * 0.92, 112 * u, {
+          slam: slam(t, T.l1, 0.42, 1.9), tracking: 2 * u,
+          fill: C.white, stroke: C.ink, strokeW: 16 * u, shadow: C.red, shadowY: 12 * u
+        });
+        wordSlam(ctx, CFG.lines[1], cx, Y(0.175), W * 0.92, 126 * u, {
+          slam: slam(t, T.l2, 0.42, 1.9), tracking: 2 * u,
+          fill: C.yellow, stroke: C.ink, strokeW: 16 * u, shadow: C.crimson, shadowY: 12 * u
+        });
+        ctx.restore();
+      }
+
+      // «БУРМОЛДА»
+      if (t > T.lock + 0.04) {
+        wordSlam(ctx, CFG.brand, cx, Y(0.152), W * 0.86, 190 * u, {
+          slam: slam(t, T.lock + 0.08, 0.42, 2.1), tracking: 3 * u,
+          fill: C.white, stroke: C.ink, strokeW: 22 * u, shadow: C.gold, shadowY: 16 * u
+        });
+      }
+
+      // маленькая плашка под названием
       {
-        const frameW = W * 0.88, frameH = H * 0.275;
-        const fx = cx - frameW / 2, fy = Y(0.545) - frameH / 2;
-        const win = t > T.lock + 0.34;
-
-        // масштаб: на джекпоте машина «подпрыгивает» и золотеет
-        const jump = t > T.jackpot ? Math.sin(clamp(seg(t, T.jackpot, T.jackpot + 0.5)) * Math.PI) * 40 * u : 0;
-        ctx.save();
-        ctx.translate(cx, Y(0.545) - jump);
-        ctx.scale(punch, punch);
-        ctx.translate(-cx, -Y(0.545));
-
-        // корпус
-        rrect(ctx, fx, fy, frameW, frameH, 34 * u);
-        A.fillStroke(ctx, win ? C.gold : C.crimson, C.ink, 10 * u);
-        rrect(ctx, fx + 16 * u, fy + 16 * u, frameW - 32 * u, frameH - 32 * u, 24 * u);
-        A.fillStroke(ctx, C.ink, C.gold, 6 * u);
-
-        // лампочки по периметру
-        const bulbs = 14;
-        for (let i = 0; i < bulbs * 2; i++) {
-          const on = Math.sin(t * 9 + i * 1.3) > 0 ? 1 : 0.35;
-          let bx, by;
-          if (i < bulbs) { bx = fx + (i / (bulbs - 1)) * frameW; by = fy; }
-          else { bx = fx + ((i - bulbs) / (bulbs - 1)) * frameW; by = fy + frameH; }
-          ctx.globalAlpha = on;
-          circle(ctx, bx, by, 9 * u, C.yellow, C.ink, 3 * u);
-          ctx.globalAlpha = 1;
-        }
-
-        // «777»
-        const topW = W * 0.30;
-        band(ctx, cx, fy + 2 * u, topW, 68 * u, C.ink, C.yellow, 6 * u, 16 * u);
-        label(ctx, '777', cx, fy + 4 * u, {
-          size: 44 * u, fill: win ? C.white : C.yellow, align: 'center', tracking: 5 * u
-        });
-
-        // барабаны
-        const pad = 42 * u;
-        const rw = (frameW - pad * 2 - 24 * u * 2) / 3;
-        const rh = frameH - pad * 2;
-        for (let i = 0; i < 3; i++) {
-          const rx = fx + pad + i * (rw + 24 * u);
-          drawReel(ctx, rx, fy + pad, rw, rh, t, reels[i], u, win);
-        }
-
-        ctx.restore();
-      }
-
-      /* ------------------------------ призовая плашка -------------------------- */
-      if (t > 0.42 && t < T.cta + 0.05) {
-        const ap = easeOutBack(seg(t, 0.42, 0.68), 1.6);
-        ctx.save();
-        ctx.translate(cx, Y(0.752));
-        ctx.rotate(-0.03);
-        ctx.scale(ap * (1 + env * 0.05), ap * (1 + env * 0.05));
-        band(ctx, 0, 0, W * 0.56, 96 * u, C.ink, C.gold, 7 * u, 24 * u);
-        label(ctx, CFG.mult, 0, 2 * u, { size: 60 * u, fill: C.yellow, stroke: C.ink, strokeW: 8 * u, align: 'center', tracking: 3 * u });
-        ctx.restore();
-      }
-
-      /* -------------------------------- вспышка ------------------------------- */
-      const fl1 = pulse(t, T.jackpot - 0.03, 0.12);
-      if (fl1 > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = clamp(fl1 * 0.85);
-        ctx.fillStyle = C.white;
-        ctx.fillRect(-W, -H, W * 3, H * 3);
-        ctx.restore();
-      }
-
-      /* -------------------------------- слово 1 ------------------------------- */
-      if (t < T.jackpot + 0.05) {
-        wordSlam(ctx, CFG.word1, cx, Y(0.215), W * 0.88, 210 * u, {
-          slam: slam(t, T.a + 0.05, 0.4, 1.9), tracking: 3 * u,
-          fill: C.yellow, stroke: C.ink, strokeW: 20 * u, shadow: C.crimson, shadowY: 16 * u
-        });
-
-        const ap = seg(t, T.a + 0.25, T.a + 0.45);
+        const ap = easeOutBack(seg(t, T.lock + 0.5, T.lock + 0.8), 1.6);
         if (ap > 0) {
           ctx.save();
-          ctx.globalAlpha = ap;
-          ctx.translate(cx, Y(0.355));
-          const sc = easeOutBack(ap, 1.5);
-          ctx.scale(sc, sc);
-          band(ctx, 0, 0, W * 0.66, 84 * u, C.ink, C.red, 6 * u, 20 * u);
-          label(ctx, CFG.sub, 0, 2 * u, { size: 38 * u, tracking: 1 * u, fill: C.white, align: 'center' });
+          ctx.translate(cx, Y(0.268));
+          ctx.scale(ap, ap);
+          band(ctx, 0, 0, W * 0.62, 66 * u, C.ink, C.yellow, 5 * u, 16 * u);
+          label(ctx, 'МЭЛ ФУТАЖЭС  •  ЛУЧШИЕ КАДРЫ', 0, 2 * u, {
+            size: fitSize(ctx, 'МЭЛ ФУТАЖЭС  •  ЛУЧШИЕ КАДРЫ', W * 0.56, 30 * u, { tracking: 1 * u }),
+            fill: C.yellow, align: 'center', tracking: 1 * u
+          });
           ctx.restore();
         }
       }
 
-      /* --------------------------------- деньги -------------------------------- */
-      const mf = t > T.jackpot + 0.02 ? seg(t, T.jackpot + 0.02, T.jackpot + 0.24) : 0;
-      if (mf > 0) {
-        for (const m of money) {
-          const tt = t - (T.jackpot + 0.02) - m.from;
-          if (tt < 0) continue;
-          const span = 1 / m.sp;
-          const ph = ((m.ph * span + tt) % span) / span;
-          const py = lerp(-H * 0.12, H * 1.1, ph);
-          const px = X(m.x) + Math.sin(tt * 1.6 + m.ph * 7) * W * 0.03;
-          ctx.save();
-          ctx.globalAlpha = mf * 0.95;
-          ctx.translate(px, py);
-          ctx.rotate(m.rot + tt * m.spin);
-          if (m.kind === 'bill') bill(ctx, 0, 0, 118 * u * m.sz, 54 * u * m.sz, 0);
-          else coin(ctx, 0, 0, 28 * u * m.sz, 0);
-          ctx.restore();
-        }
-      }
+      /* --------------------------- 4. АДРЕСНАЯ СТРОКА -------------------------- */
+      if (t > T.domain) {
+        const p = easeOutBack(seg(t, T.domain, T.domain + 0.3), 1.7);
+        const py = Y(0.79);
+        ctx.save();
+        ctx.translate(cx, py + (1 - p) * 120 * u);
+        ctx.scale(p * (0.98 + env * 0.06), p * (0.98 + env * 0.06));
 
-      /* ------------------------------ джекпот-надпись -------------------------- */
-      if (t > T.jackpot - 0.02) {
+        // «окошко» адресной строки
+        const pw = W * 0.80, ph = 96 * u;
+        rrect(ctx, -pw / 2, -ph / 2 + 10 * u, pw, ph, ph * 0.5);
+        ctx.fillStyle = C.ink;
+        ctx.fill();
+        rrect(ctx, -pw / 2, -ph / 2, pw, ph, ph * 0.5);
+        ctx.fillStyle = C.white;
+        ctx.fill();
+        ctx.lineWidth = 7 * u;
+        ctx.strokeStyle = C.ink;
+        ctx.stroke();
 
-        wordSlam(ctx, CFG.word2, cx, Y(0.205), W * 0.90, 240 * u, {
-          slam: slam(t, T.jackpot + 0.06, 0.42, 2.1), tracking: 4 * u,
-          fill: C.white, stroke: C.ink, strokeW: 22 * u, shadow: C.gold, shadowY: 18 * u
+        // «замок»
+        const lx = -pw / 2 + 46 * u;
+        circle(ctx, lx, 0, 22 * u, C.yellow, C.ink, 5 * u);
+        rrect(ctx, lx - 9 * u, -2 * u, 18 * u, 14 * u, 3 * u);
+        ctx.fillStyle = C.ink;
+        ctx.fill();
+
+        label(ctx, CFG.domain, 18 * u, 2 * u, {
+          size: fitSize(ctx, CFG.domain, pw * 0.66, 64 * u), fill: C.ink, align: 'center', tracking: 1 * u
         });
 
-        // счётчик
-        const cp = easeOutCubic(seg(t, T.jackpot + 0.18, T.jackpot + 1.0));
-        const val = Math.round(1000000 * cp);
-        const txt = String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
-        const cw = W * 0.86;
+        // «ру» акцентом
+        const pulseRu = 1 + pulse(t, T.domain + 0.1, 0.3) * 0.1;
         ctx.save();
-        ctx.translate(cx, Y(0.325));
-        ctx.scale(1 + env * 0.05, 1 + env * 0.05);
-        band(ctx, 0, 0, cw, 96 * u, C.ink, C.yellow, 7 * u, 22 * u);
-        label(ctx, txt, 0, 3 * u, { size: 56 * u, fill: C.gold, align: 'center', tracking: 1 * u, stroke: C.ink, strokeW: 8 * u });
+        ctx.translate(pw / 2 - 34 * u, 0);
+        ctx.scale(pulseRu, pulseRu);
+        circle(ctx, 0, 0, 26 * u, C.red, C.ink, 5 * u);
+        label(ctx, 'РУ', 0, 2 * u, { size: 26 * u, fill: C.white, align: 'center' });
         ctx.restore();
-      }
 
-      /* ---------------------------------- искры -------------------------------- */
-      for (const [bt, by] of [[T.a + 0.06, 0.215], [T.jackpot + 0.02, 0.50]]) {
-        const dt = t - bt;
-        if (dt < 0 || dt > 0.85) continue;
-        for (const s of sparks) {
-          const d = s.d * 0.6 * M * easeOutCubic(clamp(dt / 0.5));
-          ctx.save();
-          ctx.globalAlpha = (1 - clamp(dt / 0.85)) * 0.95;
-          sparkle(ctx, cx + Math.cos(s.a) * d * s.sp * 1.4, Y(by) + Math.sin(s.a) * d * s.sp, 26 * u * s.s, dt * 3 + s.a, s.a > 3 ? C.white : C.yellow);
-          ctx.restore();
+        // курсор кликает
+        const cp = seg(t, T.domain + 0.1, T.domain + 0.42);
+        if (cp > 0) {
+          const px = lerp(pw * 0.62, pw * 0.20, easeOutCubic(cp));
+          const pyp = lerp(ph * 0.9, -ph * 0.1, easeOutCubic(cp));
+          cursorArrow(ctx, px, pyp, 52 * u, C.white);
         }
+        ctx.restore();
       }
 
       /* ---------------------------------- CTA ---------------------------------- */
       if (t > T.cta) {
         const p = seg(t, T.cta, T.cta + 0.3);
-        const by = lerp(H + 300 * u, Y(0.878), easeOutBack(p, 1.5));
+        const by = lerp(H + 320 * u, Y(0.895), easeOutBack(p, 1.5));
 
-        rrect(ctx, W * 0.045, by - 112 * u, W * 0.91, 224 * u, 26 * u);
+        rrect(ctx, W * 0.045, by - 100 * u, W * 0.91, 200 * u, 24 * u);
         A.fillStroke(ctx, C.ink, C.gold, 8 * u);
 
-        label(ctx, CFG.cta, cx, by - 44 * u, {
-          size: fitSize(ctx, CFG.cta, W * 0.80, 68 * u), fill: C.white, align: 'center', tracking: 1 * u
+        label(ctx, CFG.cta, cx, by - 40 * u, {
+          size: fitSize(ctx, CFG.cta, W * 0.80, 56 * u), fill: C.white, align: 'center', tracking: 0.5 * u
         });
 
         const bpx = cx - W * 0.04;
-        const bpy = by + 54 * u;
-        band(ctx, bpx, bpy, W * 0.58, 62 * u, C.red, C.ink, 5 * u, 15 * u);
-        label(ctx, CFG.ctaSub, bpx - 16 * u, bpy + 2 * u, { size: 32 * u, fill: C.white, align: 'center', tracking: 1 * u });
+        const bpy = by + 50 * u;
+        band(ctx, bpx, bpy, W * 0.56, 56 * u, C.red, C.ink, 5 * u, 14 * u);
+        label(ctx, CFG.ctaSub, bpx - 16 * u, bpy + 2 * u, { size: 30 * u, fill: C.white, align: 'center', tracking: 1 * u });
         const bob = Math.sin(t * 9) * 9 * u;
-        arrowDown(ctx, cx + W * 0.27, bpy + bob, 46 * u, C.yellow, C.ink, 6 * u);
+        arrowDown(ctx, cx + W * 0.27, bpy + bob, 44 * u, C.yellow, C.ink, 6 * u);
       }
 
       /* ------------------------------- бегущая строка --------------------------- */
-      if (t > 0.34) {
-        const ap = easeOutCubic(seg(t, 0.34, 0.52));
+      if (t > 0.32) {
+        const ap = easeOutCubic(seg(t, 0.32, 0.5));
         ctx.save();
         const th = 58 * u;
         const ty = lerp(H, H - th - 16 * u, ap);
@@ -369,7 +295,7 @@
         ctx.clip();
         const txt = CFG.ticker + CFG.ticker;
         const tw = labelWidth(ctx, txt, { size: 32 * u, tracking: 2 * u });
-        const off = -(((t - 0.34) * 240 * u) % tw);
+        const off = -(((t - 0.32) * 240 * u) % tw);
         label(ctx, txt, off, ty + th / 2 + 1 * u, { size: 32 * u, tracking: 2 * u, fill: C.yellow, align: 'left' });
         ctx.restore();
       }

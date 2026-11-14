@@ -35,6 +35,8 @@
   let srcNode = null;
   let lastT = -1;
 
+  let photosLoading = true;
+
   let recording = false;
   let recT0 = 0;
   let recorder = null;
@@ -59,6 +61,26 @@
       stage.style.setProperty('--w', W);
       stage.style.setProperty('--h', H);
     }
+    draw(clockTime());
+  }
+
+  /* ------------------------------- фото --------------------------------- */
+  async function loadPhotos() {
+    const list = window.__PHOTOS__ || [];
+    const out = [];
+    for (const src of list) {
+      const img = new Image();
+      img.src = src;
+      try {
+        await img.decode();
+      } catch (e) {
+        await new Promise((res) => { img.onload = res; img.onerror = res; });
+      }
+      out.push(img);
+    }
+    A.photos = out;
+    photosLoading = false;
+    lastT = -1;
     draw(clockTime());
   }
 
@@ -257,7 +279,7 @@
       return;
     }
     const blob = new Blob(chunks, { type: mime || 'video/webm' });
-    const name = 'rubap-' + SCENE.id + '-' + W + 'x' + H + '.' + ext;
+    const name = SCENE.id + '-' + W + 'x' + H + '.' + ext;
     downloadBlob(blob, name);
     setStatus('Готово: ' + name + ' (' + (blob.size / 1048576).toFixed(1) + ' МБ)', 'ok');
     chunks = [];
@@ -280,7 +302,7 @@
     draw(t);
     cv.toBlob((blob) => {
       if (!blob) return;
-      downloadBlob(blob, 'rubap-' + SCENE.id + '-frame-' + t.toFixed(2) + 's.png');
+      downloadBlob(blob, SCENE.id + '-frame-' + t.toFixed(2) + 's.png');
       setStatus('Кадр ' + t.toFixed(2) + ' с сохранён в PNG', 'ok');
     }, 'image/png');
   }
@@ -315,7 +337,10 @@
   draw(0);
   requestAnimationFrame(frame);
 
-  initAudio().catch((e) => {
+  loadPhotos()
+    .catch((e) => console.warn('фото не загрузились', e))
+    .then(() => initAudio())
+    .catch((e) => {
     console.error(e);
     setStatus('Не удалось загрузить звук: ' + e.message, 'err');
   });

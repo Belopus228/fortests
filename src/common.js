@@ -491,6 +491,273 @@
     ctx.restore();
   }
 
+
+  /* ---------------------------- фото / футажи ------------------------------ */
+  /** Вписать картинку в прямоугольник (cover), с зумом и смещением кадрирования */
+  function coverImage(ctx, img, x, y, w, h, cropX, cropY, zoom) {
+    if (!img || !img.width) return false;
+    const z = zoom || 1;
+    const iw = img.width, ih = img.height;
+    const k = Math.max(w / iw, h / ih) * z;
+    const sw = Math.min(iw, w / k), sh = Math.min(ih, h / k);
+    let sx = (iw - sw) / 2 + (cropX || 0) * (iw - sw) * 0.5;
+    let sy = (ih - sh) / 2 + (cropY || 0) * (ih - sh) * 0.5;
+    sx = Math.max(0, Math.min(iw - sw, sx));
+    sy = Math.max(0, Math.min(ih - sh, sy));
+    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    return true;
+  }
+
+  /**
+   * Плитка футажа: белая рамка, фото, затемнение снизу, кнопка play, таймкод.
+   * o = { img, x, y, w, h, rot, scale, cropX, cropY, zoom, dim, code, tag }
+   */
+  function photoTile(ctx, o) {
+    const w = o.w, h = o.h;
+    const r = o.r === undefined ? Math.min(w, h) * 0.07 : o.r;
+    const sc = o.scale === undefined ? 1 : o.scale;
+    const u = Math.min(w, h) / 300;
+
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    if (o.rot) ctx.rotate(o.rot);
+    if (sc !== 1) ctx.scale(sc, sc);
+
+    // жёсткая тень
+    rrect(ctx, -w / 2 + 8 * u, -h / 2 + 10 * u, w, h, r);
+    ctx.fillStyle = C.ink;
+    ctx.fill();
+
+    // белая рамка
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.fillStyle = C.white;
+    ctx.fill();
+
+    const pad = Math.max(3 * u, w * 0.022);
+    const iw = w - pad * 2, ih = h - pad * 2;
+
+    ctx.save();
+    rrect(ctx, -iw / 2, -ih / 2, iw, ih, r * 0.75);
+    ctx.clip();
+
+    const ok = coverImage(ctx, o.img, -iw / 2, -ih / 2, iw, ih, o.cropX, o.cropY, o.zoom);
+    if (!ok) {
+      ctx.fillStyle = o.placeholder || '#2E3542';
+      ctx.fillRect(-iw / 2, -ih / 2, iw, ih);
+      ctx.fillStyle = '#AEB8C8';
+      ctx.font = 'bold ' + 30 * u + 'px ' + FONT_HEAVY;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('MEL', 0, 0);
+    }
+
+    // затемнение снизу (внутри фото — зелёный фон не задевает)
+    const g = ctx.createLinearGradient(0, -ih / 2, 0, ih / 2);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(0.55, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(0,0,0,0.72)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-iw / 2, -ih / 2, iw, ih);
+
+    if (o.dim) {
+      ctx.fillStyle = 'rgba(0,0,0,' + o.dim + ')';
+      ctx.fillRect(-iw / 2, -ih / 2, iw, ih);
+    }
+
+    // кнопка play — в правом нижнем углу, чтобы не закрывать лицо
+    const pr = Math.min(iw, ih) * (o.play ? 0.16 : 0.12);
+    const pcx = iw / 2 - pr - 12 * u;
+    const pcy = ih / 2 - pr - 12 * u;
+    circle(ctx, pcx, pcy, pr, 'rgba(255,255,255,0.94)', 'rgba(0,0,0,0.4)', pr * 0.08);
+    ctx.beginPath();
+    ctx.moveTo(pcx - pr * 0.26, pcy - pr * 0.42);
+    ctx.lineTo(pcx + pr * 0.54, pcy);
+    ctx.lineTo(pcx - pr * 0.26, pcy + pr * 0.42);
+    ctx.closePath();
+    ctx.fillStyle = C.ink;
+    ctx.fill();
+
+    // подпись
+    if (o.tag !== false) {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.font = '700 ' + 19 * u + 'px ' + FONT_HEAVY;
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(o.tagText || 'mellstroy', -iw / 2 + 12 * u, ih / 2 - 12 * u);
+    }
+    // таймкод — сверху справа
+    if (o.code !== false) {
+      const txt = o.codeText || '0:14';
+      ctx.font = '700 ' + 18 * u + 'px ' + FONT_HEAVY;
+      const tw = ctx.measureText(txt).width;
+      rrect(ctx, iw / 2 - tw - 22 * u, -ih / 2 + 10 * u, tw + 16 * u, 26 * u, 5 * u);
+      ctx.fillStyle = 'rgba(0,0,0,0.72)';
+      ctx.fill();
+      ctx.fillStyle = C.white;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(txt, iw / 2 - tw - 14 * u, -ih / 2 + 24 * u);
+    }
+    ctx.restore();
+
+    // обводка плитки
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.lineWidth = 4 * u;
+    ctx.strokeStyle = C.ink;
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  /** Окно браузера: рамка, три точки, адресная строка */
+  function browserWindow(ctx, o) {
+    const w = o.w, h = o.h;
+    const u = o.u || Math.min(w, h) / 300;
+    const r = w * 0.05;
+    const barH = Math.max(26 * u, h * 0.13);
+
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    if (o.rot) ctx.rotate(o.rot);
+    const sc = o.scale === undefined ? 1 : o.scale;
+    ctx.scale(sc, sc);
+
+    // тень
+    rrect(ctx, -w / 2 + 10 * u, -h / 2 + 12 * u, w, h, r);
+    ctx.fillStyle = C.ink;
+    ctx.fill();
+
+    // корпус
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.fillStyle = '#F4F6FA';
+    ctx.fill();
+
+    // шапка
+    ctx.save();
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.clip();
+    ctx.fillStyle = C.ink;
+    ctx.fillRect(-w / 2, -h / 2, w, barH);
+
+    // точки (без зелёной — чтобы хромакей не съел)
+    const dotR = barH * 0.16;
+    [C.red, C.yellow, C.blue].forEach((col, i) => {
+      circle(ctx, -w / 2 + barH * 0.38 + i * barH * 0.42, -h / 2 + barH * 0.5, dotR, col, null, 0);
+    });
+
+    // адресная строка
+    const adrH = barH * 0.62;
+    const adrW = w * 0.62;
+    rrect(ctx, -adrW / 2, -h / 2 + barH * 0.5 - adrH / 2, adrW, adrH, adrH * 0.5);
+    ctx.fillStyle = '#2C313C';
+    ctx.fill();
+    ctx.fillStyle = '#9FB0C8';
+    ctx.font = '700 ' + adrH * 0.52 + 'px ' + FONT_HEAVY;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(o.url || 'mel-footage.online', 0, -h / 2 + barH * 0.5 + adrH * 0.04);
+
+    // содержимое: скелет-заглушки
+    const cy0 = -h / 2 + barH;
+    ctx.fillStyle = '#E7EBF2';
+    ctx.fillRect(-w / 2, cy0, w, h - barH);
+    if (o.content !== false) {
+      const cols = 3, rows = 2;
+      const gg = 10 * u;
+      const cw = (w - gg * (cols + 1)) / cols;
+      const chh = (h - barH - gg * (rows + 1)) / rows;
+      for (let r2 = 0; r2 < rows; r2++) {
+        for (let c2 = 0; c2 < cols; c2++) {
+          const tx = -w / 2 + gg + c2 * (cw + gg);
+          const ty = cy0 + gg + r2 * (chh + gg);
+          rrect(ctx, tx, ty, cw, chh, 6 * u);
+          ctx.fillStyle = '#CBD3E0';
+          ctx.fill();
+          if (o.img) {
+            ctx.save();
+            rrect(ctx, tx, ty, cw, chh, 6 * u);
+            ctx.clip();
+            coverImage(ctx, o.img, tx, ty, cw, chh, 0, 0, 1);
+            ctx.restore();
+          }
+        }
+      }
+    }
+    ctx.restore();
+
+    // обводка окна
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.lineWidth = Math.max(3, 4 * u);
+    ctx.strokeStyle = C.ink;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /** Рамка выделения с уголками — «выбран лучший кадр» */
+  function selectionFrame(ctx, cx, cy, w, h, lw, color) {
+    const hw = w / 2, hh = h / 2;
+    const a = Math.min(w, h) * 0.22;
+    ctx.save();
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    const corners = [
+      [-hw, -hh, 1, 1],
+      [hw, -hh, -1, 1],
+      [hw, hh, -1, -1],
+      [-hw, hh, 1, -1]
+    ];
+    for (const [x, y, sx, sy] of corners) {
+      ctx.beginPath();
+      ctx.moveTo(cx + x + sx * a, cy + y);
+      ctx.lineTo(cx + x, cy + y);
+      ctx.lineTo(cx + x, cy + y + sy * a);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /** Курсор-стрелка */
+  function cursorArrow(ctx, x, y, s, fill) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, s * 0.95);
+    ctx.lineTo(s * 0.24, s * 0.72);
+    ctx.lineTo(s * 0.40, s * 1.06);
+    ctx.lineTo(s * 0.55, s * 0.99);
+    ctx.lineTo(s * 0.39, s * 0.66);
+    ctx.lineTo(s * 0.68, s * 0.64);
+    ctx.closePath();
+    ctx.fillStyle = fill || C.white;
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, s * 0.07);
+    ctx.strokeStyle = C.ink;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /** Плашка-URL (для «бурмолда.ру») */
+  function urlPill(ctx, x, y, w, h, text, o) {
+    o = o || {};
+    const r = h * 0.5;
+    rrect(ctx, x - w / 2, y - h / 2, w, h, r);
+    ctx.fillStyle = o.fill || C.white;
+    ctx.fill();
+    ctx.lineWidth = o.lw || h * 0.09;
+    ctx.strokeStyle = o.stroke || C.ink;
+    ctx.stroke();
+    label(ctx, text, x, y + h * 0.02, {
+      size: o.size || h * 0.52,
+      fill: o.color || C.ink,
+      align: 'center',
+      tracking: o.tracking || 0,
+      fontFn: o.fontFn
+    });
+  }
+
   /* ------------------------------- аудио-огибающая ------------------------- */
   /**
    * Считает огибающую громкости по каналу PCM. Возвращает функцию env(t) -> 0..1.
@@ -534,6 +801,7 @@
     TAU, clamp, lerp, seg, smooth, easeOutCubic, easeInCubic, easeOutQuint, easeInOutCubic,
     easeOutBack, easeInBack, easeOutElastic, pulse, mulberry32, rr, C, FONT_DISPLAY, FONT_HEAVY,
     rrect, poly, starPath, fillStroke, burst, circle, ring, arc, gear, coin, bill, sparkle,
-    arrowDown, arrowRight, bolt, label, labelWidth, fitSize, band, trash, skin, makeEnvelope
+    arrowDown, arrowRight, bolt, label, labelWidth, fitSize, band, trash, skin, makeEnvelope,
+    coverImage, photoTile, browserWindow, selectionFrame, cursorArrow, urlPill
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

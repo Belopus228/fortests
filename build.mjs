@@ -56,20 +56,24 @@ const runtime = read('src/runtime.js');
 
 const jobs = [
   {
-    out: 'upgrader-rubap-1.html',
+    out: 'mel-footage-1.html',
     scene: 'src/scene-1.js',
     audio: '[Меллстрой]_рифм......а ру .mp3',
-    title: 'АПГРЕЙДЕР · мусордроп · рубап — зелёный ролик',
-    titleShort: 'АПГРЕЙДЕР → РУБАП'
+    title: 'МЭЛ ФУТАЖЭС · забери свой лучший кадр — зелёный ролик',
+    titleShort: 'МЭЛ ФУТАЖЭС · ЛУЧШИЙ КАДР'
   },
   {
-    out: 'upgrader-rubap-2.html',
+    out: 'burmolda-ru-2.html',
     scene: 'src/scene-2.js',
     audio: '[Меллстрой]_рифм......нлайн.mp3',
-    title: 'МУСОР → РУБАП · слот-джекпот — зелёный ролик',
-    titleShort: 'МУСОР → РУБАП · ДЖЕКПОТ'
+    title: 'БУРМОЛДА.РУ · найди свою бурмолду — зелёный ролик',
+    titleShort: 'БУРМОЛДА.РУ · НАЙДИ СВОЮ'
   }
 ];
+
+/* фото для «стены футажей» зашиваем в HTML как data-URI */
+const photoFiles = fs.readdirSync(path.join(root, 'src/photos')).filter((f) => /\.(jpe?g|png)$/i.test(f)).sort();
+const photosJson = JSON.stringify(photoFiles.map((f) => 'data:image/jpeg;base64,' + readB64('src/photos/' + f)));
 
 assertSyntax(common, 'src/common.js');
 assertSyntax(runtimeSrc, 'src/runtime.js');
@@ -88,7 +92,8 @@ for (const job of jobs) {
     .replace(/\{\{TITLE_SHORT\}\}/g, () => job.titleShort)
     .replace('{{TITLE_JSON}}', () => JSON.stringify(job.title))
     .replace('{{AUDIO_NAME_JSON}}', () => JSON.stringify(job.audio))
-    .replace('{{AUDIO_B64}}', () => `data:audio/mpeg;base64,${audioB64}`);
+    .replace('{{AUDIO_B64}}', () => `data:audio/mpeg;base64,${audioB64}`)
+    .replace('{{PHOTOS}}', () => photosJson);
 
   html = html.replace(/\{\{[A-Z_]+\}\}/g, (m) => {
     throw new Error('Не подставлен плейсхолдер: ' + m);
