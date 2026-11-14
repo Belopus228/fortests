@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Зелёные ролики · mellfootages.online / burmolda.ru</title>
+<style>
+  :root { --bg:#07080b; --panel:#12141a; --line:#262a34; --txt:#eef1f7; --dim:#98a0b3; --green:#00ff00; --yellow:#ffd400; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: radial-gradient(1100px 600px at 50% -5%, #15181f 0%, var(--bg) 60%);
+    color: var(--txt); font-family: "Segoe UI", system-ui, Arial, sans-serif; padding: 36px 20px 60px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .kicker { color: var(--green); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
+  h1 { font-size: clamp(26px, 4vw, 42px); margin: 10px 0 8px; line-height: 1.15; }
+  h1 span { color: var(--yellow); }
+  p.lead { color: var(--dim); max-width: 760px; line-height: 1.65; margin: 0 0 30px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+  a.card {
+    display: block; text-decoration: none; color: inherit; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 20px; padding: 22px; position: relative; overflow: hidden;
+    transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  a.card:hover { transform: translateY(-3px); border-color: #3c4453; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+  a.card::after {
+    content: ""; position: absolute; inset: -40% -10% auto auto; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #00ff0033, transparent 65%);
+  }
+  .num { font-size: 13px; color: var(--dim); letter-spacing: 2px; }
+  .card h2 { margin: 8px 0 6px; font-size: 24px; }
+  .card .say { font-size: 13px; color: #9fb0c8; font-style: italic; margin: 0 0 12px; }
+  .card p { margin: 0 0 16px; color: var(--dim); font-size: 14px; line-height: 1.55; }
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-size: 12px; color: #cfd6e6; background: #0e1117; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
+  .go { margin-top: 18px; display: inline-block; font-weight: 700; color: var(--green); }
+  .how { margin-top: 34px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; }
+  .how h3 { margin: 0 0 12px; font-size: 18px; }
+  .how ol { margin: 0; padding-left: 20px; color: var(--dim); line-height: 1.75; font-size: 14px; }
+  code { background: #0e1117; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--yellow); font-family: ui-monospace, Consolas, monospace; }
+  .foot { margin-top: 26px; font-size: 12px; color: #5d6678; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">green screen ads · 1080 × 1920</div>
+  <h1>mellfootages.online · <span>burmolda.ru</span></h1>
+  <p class="lead">
+    Два ролика на чистом зелёном фоне: открывается чёрное окно сайта с сеткой футажей Меллстроя,
+    один кадр выделяется и открывается превью, снизу — название и адрес.
+    Чёрное окно не сливается с геймплеем при наложении. Всё нарисовано кодом и синхронизировано со звуками.
+  </p>
+
+  <div class="grid">
+    <a class="card" href="mellfootages-online.html">
+      <div class="num">РОЛИК 01</div>
+      <h2>MELLFOOTAGES.ONLINE</h2>
+      <p class="say">«Забери свой лучший кадр… мэл футажэс онлайн!»</p>
+      <p>Чёрное окно сайта: сетка футажей, курсор открывает кадр, превью с кнопкой «Скачать кадр», плашка «МЭЛ ФУТАЖЭС» и домен.</p>
+      <div class="tags">
+        <span class="tag">звук 3.79 с</span>
+        <span class="tag">итого 4.79 с</span>
+        <span class="tag">9:16 / 1:1 / 16:9</span>
+      </div>
+      <div class="go">Открыть ролик →</div>
+    </a>
+
+    <a class="card" href="burmolda-ru.html">
+      <div class="num">РОЛИК 02</div>
+      <h2>BURMOLDA.RU</h2>
+      <p class="say">«…найди свою бурмолду… бурмолда точка ру»</p>
+      <p>В окне сайта печатается запрос «найди свою бурмолду», находится кадр, на «точка ру» подсвечивается адресная строка и появляется домен.</p>
+      <div class="tags">
+        <span class="tag">звук 4.15 с</span>
+        <span class="tag">итого 5.15 с</span>
+        <span class="tag">9:16 / 1:1 / 16:9</span>
+      </div>
+      <div class="go">Открыть ролик →</div>
+    </a>
+  </div>
+
+  <div class="how">
+    <h3>Как снять видео</h3>
+    <ol>
+      <li>Открой ролик, выбери формат (9:16 / 1:1 / 16:9) и качество.</li>
+      <li>Жми <b>«Записать видео»</b> — файл MP4 (или WEBM) скачается сам, звук уже внутри.</li>
+      <li>Кинь ролик поверх геймплея в Premiere / CapCut / DaVinci / OBS.</li>
+      <li>Хромакей: ключевой цвет <code>#00FF00</code> (RGB 0 · 255 · 0), допуск 30–45 %.</li>
+    </ol>
+  </div>
+
+  <div class="foot">
+    Шрифты: Russo One, Montserrat (SIL Open Font License). Фото для стены футажей — мемные кадры из открытых источников,
+    лежат в <code>src/photos/</code> и легко меняются. Сборка: <code>node build.mjs</code>.
+  </div>
+</div>
+</body>
+</html>
