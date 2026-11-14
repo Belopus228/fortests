@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+{{FONTS}}
+{{STYLE}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="logo">GREEN&nbsp;SCREEN <span>AD</span></div>
+    <div class="meta">
+      <strong id="title">{{TITLE_SHORT}}</strong>
+      <span id="subtitle"></span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="stage">
+      <canvas id="cv" width="1080" height="1920"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <button id="btnPlay" class="primary">▶ Играть</button>
+        <button id="btnRestart">⟲ С начала</button>
+      </div>
+      <div class="row">
+        <button id="btnRecord" class="rec">⏺ Записать видео</button>
+        <button id="btnFrame">🖼 Кадр PNG</button>
+      </div>
+
+      <div class="timeline">
+        <input type="range" id="seek" min="0" max="1000" value="0">
+        <div class="times"><span id="tCur">0.00</span> / <span id="tTot">0.00</span> с</div>
+      </div>
+
+      <label class="sel">Формат
+        <select id="aspect">
+          <option value="9:16" selected>9:16 (Reels / Shorts)</option>
+          <option value="1:1">1:1 (пост)</option>
+          <option value="16:9">16:9 (YouTube)</option>
+        </select>
+      </label>
+
+      <label class="sel">Качество
+        <select id="quality">
+          <option value="1080" selected>1080p</option>
+          <option value="720">720p</option>
+          <option value="1440">1440p</option>
+        </select>
+      </label>
+
+      <label class="check"><input type="checkbox" id="loop" checked> повторять по кругу</label>
+
+      <div class="status" id="status">Загрузка звука…</div>
+
+      <div class="hints">
+        <b>Как снять ролик:</b>
+        <ol>
+          <li>Жми <b>«Записать видео»</b> — файл (MP4 или WEBM) скачается сам.</li>
+          <li>В редакторе (Premiere, CapCut, DaVinci, OBS) клади его поверх геймплея.</li>
+          <li>Хромакей: ключевой цвет <code>#00FF00</code>, RGB <code>0 · 255 · 0</code>, допуск 30–45 %.</li>
+          <li>В OBS: источник «Окно браузера» + фильтр «Хромакей», цвет Key Color → <code>00FF00</code>.</li>
+        </ol>
+        <p style="margin:10px 0 0">Клавиши: <b>Space</b> — плей/пауза, <b>R</b> — заново, <b>S</b> — кадр PNG.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">Звук и графика лежат внутри этого файла — интернет не нужен. Ролик рендерится кодом на canvas в реальном времени.</div>
+</div>
+
+<script>window.__META__ = { title: {{TITLE_JSON}}, audio: {{AUDIO_NAME_JSON}} };</script>
+<script>window.__AUDIO__ = "{{AUDIO_B64}}";</script>
+<script>
+{{COMMON}}
+</script>
+<script>
+{{SCENE}}
+</script>
+<script>
+{{RUNTIME}}
+</script>
+</body>
+</html>
