@@ -56,18 +56,18 @@ const runtime = read('src/runtime.js');
 
 const jobs = [
   {
-    out: 'mel-footage-1.html',
+    out: 'mellfootages-online.html',
     scene: 'src/scene-1.js',
-    audio: '[Меллстрой]_рифм......а ру .mp3',
-    title: 'МЭЛ ФУТАЖЭС · забери свой лучший кадр — зелёный ролик',
-    titleShort: 'МЭЛ ФУТАЖЭС · ЛУЧШИЙ КАДР'
+    audio: '[Меллстрой]_рифм......нлайн.mp3',
+    title: 'MELLFOOTAGES.ONLINE · мэл футажэс — зелёный ролик',
+    titleShort: 'МЭЛ ФУТАЖЭС · ОНЛАЙН'
   },
   {
-    out: 'burmolda-ru-2.html',
+    out: 'burmolda-ru.html',
     scene: 'src/scene-2.js',
-    audio: '[Меллстрой]_рифм......нлайн.mp3',
-    title: 'БУРМОЛДА.РУ · найди свою бурмолду — зелёный ролик',
-    titleShort: 'БУРМОЛДА.РУ · НАЙДИ СВОЮ'
+    audio: '[Меллстрой]_рифм......а ру .mp3',
+    title: 'BURMOLDA.RU · найди свою бурмолду — зелёный ролик',
+    titleShort: 'БУРМОЛДА · BURMOLDA.RU'
   }
 ];
 

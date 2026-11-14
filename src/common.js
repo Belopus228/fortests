@@ -758,6 +758,94 @@
     });
   }
 
+
+  /* --------------------------- тёмное окно сайта ----------------------------
+     Рисуется в текущей системе координат: (0,0) — центр окна.
+     Возвращает геометрию контента, чтобы сцена рисовала «сайт» внутри.
+  */
+  function darkSite(ctx, w, h, u, url, o) {
+    o = o || {};
+    const r = Math.min(w, h) * 0.045;
+    const barH = Math.max(34 * u, h * 0.10);
+    const pad = 16 * u;
+
+    // тень
+    rrect(ctx, -w / 2 + 12 * u, -h / 2 + 14 * u, w, h, r);
+    ctx.fillStyle = '#05060A';
+    ctx.fill();
+
+    // корпус
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.fillStyle = '#0B0C10';
+    ctx.fill();
+
+    ctx.save();
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.clip();
+
+    // шапка
+    ctx.fillStyle = '#191C24';
+    ctx.fillRect(-w / 2, -h / 2, w, barH);
+    ctx.fillStyle = '#2B3140';
+    ctx.fillRect(-w / 2, -h / 2 + barH - 2 * u, w, 2 * u);
+
+    // три точки
+    const dotR = barH * 0.15;
+    [C.red, C.yellow, C.blue].forEach((col, i) => {
+      circle(ctx, -w / 2 + barH * 0.42 + i * barH * 0.44, -h / 2 + barH * 0.5, dotR, col, null, 0);
+    });
+
+    // адресная строка
+    const adrH = barH * 0.56;
+    const adrW = Math.min(w * 0.60, w * 0.60);
+    rrect(ctx, -adrW / 2, -h / 2 + barH * 0.5 - adrH / 2, adrW, adrH, adrH * 0.5);
+    ctx.fillStyle = '#252A36';
+    ctx.fill();
+    // «замок»
+    const lx = -adrW / 2 + adrH * 0.55;
+    circle(ctx, lx, -h / 2 + barH * 0.5, adrH * 0.2, C.yellow, null, 0);
+    label(ctx, url || 'site.ru', 0, -h / 2 + barH * 0.52, {
+      size: Math.min(adrH * 0.52, 26 * u),
+      fill: '#E8EDF7', align: 'center', tracking: 0.5 * u, fontFn: (s) => '700 ' + s + 'px ' + FONT_HEAVY
+    });
+
+    // контент
+    ctx.fillStyle = '#0F1117';
+    ctx.fillRect(-w / 2, -h / 2 + barH, w, h - barH);
+
+    ctx.restore();
+
+    // рамка
+    rrect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.lineWidth = 5 * u;
+    ctx.strokeStyle = C.white;
+    ctx.stroke();
+
+    return {
+      w, h, barH, r,
+      content: { x: -w / 2 + pad, y: -h / 2 + barH + pad, w: w - pad * 2, h: h - barH - pad * 2 }
+    };
+  }
+
+  /** Плашка-футер с брендом и доменом */
+  function brandPlate(ctx, x, y, w, h, u, brand, domain, accent) {
+    rrect(ctx, x - w / 2, y - h / 2, w, h, h * 0.22);
+    ctx.fillStyle = '#0B0C10';
+    ctx.fill();
+    ctx.lineWidth = 5 * u;
+    ctx.strokeStyle = accent || C.yellow;
+    ctx.stroke();
+
+    label(ctx, brand, x, y - h * 0.17, {
+      size: fitSize(ctx, brand, w * 0.88, h * 0.42), fill: C.white, align: 'center', tracking: 1 * u,
+      stroke: C.ink, strokeW: 0
+    });
+    label(ctx, domain, x, y + h * 0.24, {
+      size: fitSize(ctx, domain, w * 0.86, h * 0.26, {}), fill: accent || C.yellow, align: 'center', tracking: 0.5 * u,
+      fontFn: (s) => '900 ' + s + 'px ' + FONT_HEAVY
+    });
+  }
+
   /* ------------------------------- аудио-огибающая ------------------------- */
   /**
    * Считает огибающую громкости по каналу PCM. Возвращает функцию env(t) -> 0..1.
@@ -802,6 +890,6 @@
     easeOutBack, easeInBack, easeOutElastic, pulse, mulberry32, rr, C, FONT_DISPLAY, FONT_HEAVY,
     rrect, poly, starPath, fillStroke, burst, circle, ring, arc, gear, coin, bill, sparkle,
     arrowDown, arrowRight, bolt, label, labelWidth, fitSize, band, trash, skin, makeEnvelope,
-    coverImage, photoTile, browserWindow, selectionFrame, cursorArrow, urlPill
+    coverImage, photoTile, browserWindow, selectionFrame, cursorArrow, urlPill, darkSite, brandPlate
   };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
